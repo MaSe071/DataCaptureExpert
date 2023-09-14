@@ -1,0 +1,61 @@
+CREATE TABLE Customer (
+    UserId UNIQUEIDENTIFIER PRIMARY KEY,
+    Username NVARCHAR(30),
+    Email NVARCHAR(20),
+    FirstName NVARCHAR(20),
+    LastName NVARCHAR(20),
+    CreatedOn DATETIME,
+    IsActive BIT
+);
+
+CREATE TABLE [Order] (
+    OrderId UNIQUEIDENTIFIER PRIMARY KEY,
+    ProductId UNIQUEIDENTIFIER,
+    OrderStatus INT,
+    OrderType INT,
+    OrderBy UNIQUEIDENTIFIER,
+    OrderedOn DATETIME,
+    ShippedOn DATETIME,
+    IsActive BIT
+);
+
+CREATE TABLE Product (
+    ProductId UNIQUEIDENTIFIER PRIMARY KEY,
+    ProductName NVARCHAR(50),
+    UnitPrice DECIMAL(18, 2),
+    SupplierId UNIQUEIDENTIFIER,
+    CreatedOn DATETIME,
+    IsActive BIT
+);
+
+CREATE TABLE Supplier (
+    SupplierId UNIQUEIDENTIFIER PRIMARY KEY,
+    SupplierName NVARCHAR(50),
+    CreatedOn DATETIME,
+    IsActive BIT
+);
+
+
+-- Create Stored Procedure to Get Active Orders by Customer
+CREATE PROCEDURE GetActiveOrdersByCustomer
+    @CustomerId UNIQUEIDENTIFIER
+AS
+BEGIN
+    SELECT 
+        O.OrderId,
+        P.ProductId,
+        P.ProductName,
+        O.OrderStatus,
+        O.OrderType,
+        O.OrderBy,
+        O.OrderedOn,
+        O.ShippedOn,
+        O.IsActive
+    FROM
+        [Order] O
+    JOIN
+        Product P ON O.ProductId = P.ProductId
+    WHERE
+        O.OrderBy = @CustomerId
+        AND O.IsActive = 1;
+END;
